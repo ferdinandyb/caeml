@@ -12,3 +12,7 @@ Setting for aerc:
 ```
 message/rfc822=caeml | colorize
 ```
+
+# Contribution
+
+Patches sent in email are also welcome :)
