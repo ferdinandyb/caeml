@@ -28,7 +28,6 @@ func main() {
 			f.Close()
 			os.Exit(1)
 		}
-		f.Close()
 	} else {
 
 		var readerr error
