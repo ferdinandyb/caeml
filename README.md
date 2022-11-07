@@ -8,7 +8,18 @@ A modern email will have about 60 lines of headers _before_ the From header and 
 
 Of course this is why you use a MUA instead of reading raw emails, but `caeml` was written for two use cases. One, poking around in your maildir folder, when trying to figure out what's going wrong with your syncing and previewing `message/rfc822` attachments in [aerc](aerc-mail.org).
 
-Setting for aerc:
+# Usage
+
+- read from STDIN: `cat test.eml | caeml`
+- read from file:  `caeml test.eml`
+- change order of headers: `caeml -H "Subject,To,From,Message-Id"`
+
+Default header order is: `caeml -H "From,To,Cc,Bcc,Date,Subject"`
+If a header is empty it will not be displayed.
+
+# Integration
+
+## aerc
 ```
 message/rfc822=caeml | colorize
 ```
