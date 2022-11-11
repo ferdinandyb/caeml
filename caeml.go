@@ -19,20 +19,24 @@ func main() {
 	args := make([]string, len(os.Args))
 	copy(args, os.Args)
 
-	opts, optind, err := getopt.Getopts(args, "H:")
+	opts, optind, err := getopt.Getopts(args, "H:O")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	headers := []string{"From", "To", "Cc", "Bcc", "Date", "Subject"}
+	printBody := true
 	for _, opt := range opts {
 		if opt.Option == 'H' {
 			headers = strings.Split(opt.Value, ",")
 			for i, _ := range headers {
 				headers[i] = strings.TrimSpace(headers[i])
 			}
+		} else if opt.Option == 'O' {
+			printBody = false
 		}
+
 	}
 
 	if len(args[optind:]) > 0 {
@@ -107,7 +111,9 @@ func main() {
 			fmt.Println(header + ": " + text)
 		}
 	}
-
+	if !printBody {
+		return
+	}
 	fmt.Print("\n--------------------------------------------------------\n\n")
 	for true {
 		part, err := r.NextPart()
