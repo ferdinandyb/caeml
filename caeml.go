@@ -114,7 +114,7 @@ func main() {
 	if !printBody {
 		return
 	}
-	fmt.Print("\n--------------------------------------------------------\n\n")
+	fmt.Print("\n-----------------------------------------\n\n")
 	for true {
 		part, err := r.NextPart()
 		if err != nil {

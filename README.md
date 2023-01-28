@@ -12,7 +12,8 @@ Of course this is why you use a MUA instead of reading raw emails, but `caeml` w
 
 - read from STDIN: `cat test.eml | caeml`
 - read from file:  `caeml test.eml`
-- change order of headers: `caeml -H "Subject,To,From,Message-Id"`
+- change order of headers: `caeml -H "Subject,To,From,Message-Id" test.eml`
+- print only headers: `caeml -O test.eml`
 
 Default header order is: `caeml -H "From,To,Cc,Bcc,Date,Subject"`
 If a header is empty it will not be displayed.
