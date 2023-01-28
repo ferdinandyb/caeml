@@ -13,57 +13,7 @@ import (
 	"github.com/emersion/go-message/mail"
 )
 
-func main() {
-	var r *mail.Reader
-
-	args := make([]string, len(os.Args))
-	copy(args, os.Args)
-
-	opts, optind, err := getopt.Getopts(args, "H:O")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	headers := []string{"From", "To", "Cc", "Bcc", "Date", "Subject"}
-	printBody := true
-	for _, opt := range opts {
-		if opt.Option == 'H' {
-			headers = strings.Split(opt.Value, ",")
-			for i, _ := range headers {
-				headers[i] = strings.TrimSpace(headers[i])
-			}
-		} else if opt.Option == 'O' {
-			printBody = false
-		}
-
-	}
-
-	if len(args[optind:]) > 0 {
-		path := strings.Join(args[optind:], " ")
-		f, err := os.Open(path)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-		var readerr error
-		r, readerr = mail.CreateReader(f)
-		if readerr != nil {
-			fmt.Println(readerr)
-			f.Close()
-			os.Exit(1)
-		}
-	} else {
-
-		var readerr error
-		reader := bufio.NewReader(os.Stdin)
-		r, readerr = mail.CreateReader(reader)
-		if readerr != nil {
-			fmt.Println(readerr)
-			os.Exit(1)
-		}
-	}
-
+func parseMail(r *mail.Reader, headers []string, printBody bool, digestMode bool) {
 	h := &mail.Header{Header: r.Header.Header}
 
 	for _, header := range headers {
@@ -111,24 +61,86 @@ func main() {
 			fmt.Println(header + ": " + text)
 		}
 	}
-	if !printBody {
-		return
+	if printBody {
+		fmt.Print("\n-----------------------------------------\n\n")
 	}
-	fmt.Print("\n-----------------------------------------\n\n")
 	for true {
 		part, err := r.NextPart()
 		if err != nil {
 			break
 		}
 		contenttype := part.Header.Get("Content-Type")
-		if strings.Split(contenttype, ";")[0] == "text/plain" {
+		contenttypestr := strings.Split(contenttype, ";")[0]
+		if printBody && contenttypestr == "text/plain" {
 			buf := new(strings.Builder)
 			_, err := io.Copy(buf, part.Body)
 			if err != nil {
 				fmt.Println(err)
 			}
 			fmt.Println(buf.String())
+		} else if digestMode && contenttypestr == "message/rfc822" {
+			fmt.Print("\n **** message/rfc822 **** \n\n")
+			reader, err := mail.CreateReader(part.Body)
+			if err != nil {
+				fmt.Println(err)
+			}
+			parseMail(reader, headers, printBody, false)
+		}
+	}
+}
+
+func main() {
+	var r *mail.Reader
+
+	args := make([]string, len(os.Args))
+	copy(args, os.Args)
+
+	opts, optind, err := getopt.Getopts(args, "H:OD")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	headers := []string{"From", "To", "Cc", "Bcc", "Date", "Subject"}
+	printBody := true
+	digestMode := false
+	for _, opt := range opts {
+		if opt.Option == 'H' {
+			headers = strings.Split(opt.Value, ",")
+			for i := range headers {
+				headers[i] = strings.TrimSpace(headers[i])
+			}
+		} else if opt.Option == 'O' {
+			printBody = false
+		} else if opt.Option == 'D' {
+			digestMode = true
 		}
 	}
 
+	if len(args[optind:]) > 0 {
+		path := strings.Join(args[optind:], " ")
+		f, err := os.Open(path)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		var readerr error
+		r, readerr = mail.CreateReader(f)
+		if readerr != nil {
+			fmt.Println(readerr)
+			f.Close()
+			os.Exit(1)
+		}
+	} else {
+
+		var readerr error
+		reader := bufio.NewReader(os.Stdin)
+		r, readerr = mail.CreateReader(reader)
+		if readerr != nil {
+			fmt.Println(readerr)
+			os.Exit(1)
+		}
+	}
+
+	parseMail(r, headers, printBody, digestMode)
 }
