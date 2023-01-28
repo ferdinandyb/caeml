@@ -70,7 +70,7 @@ func parseMail(r *mail.Reader, headers []string, printBody bool, digestMode bool
 			break
 		}
 		contenttype := part.Header.Get("Content-Type")
-		contenttypestr := strings.Split(contenttype, ";")[0]
+		contenttypestr := strings.ToLower(strings.Split(contenttype, ";")[0])
 		if printBody && contenttypestr == "text/plain" {
 			buf := new(strings.Builder)
 			_, err := io.Copy(buf, part.Body)
