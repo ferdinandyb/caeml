@@ -8,6 +8,12 @@ A modern email will have about 60 lines of headers _before_ the From header and 
 
 Of course this is why you use a MUA instead of reading raw emails, but `caeml` was written for two use cases. One, poking around in your maildir folder, when trying to figure out what's going wrong with your syncing and previewing `message/rfc822` attachments in [aerc](aerc-mail.org).
 
+# Installation
+
+```
+go install github.com/ferdinandyb/caeml@latest
+```
+
 # Usage
 
 - read from STDIN: `cat test.eml | caeml`
